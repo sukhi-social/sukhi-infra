@@ -17,6 +17,9 @@ Environment=DELIVERY_QUEUE_DB=/var/lib/sukhi/delivery_queue.db
 Environment=SUKHI_GRAPH=1
 Environment=NATS_URL=nats://sukhi-nats:4222
 Environment=WEB_UPSTREAMS=web-next=http://sukhi-web-next:3000
+# `/` は既定だと nodeinfo_monitor アドオン(NodeInfo viewer)が答え、web-next に渡らない。
+# SNS として使うので切る(viewer とウォッチャー bot の登録は 404 になる)。
+Environment=DISABLE_ADDONS=nodeinfo_monitor
 # DOMAIN などの環境ごとの値は overlays/<env>/ に置く。
 # 秘密は事前に podman secret で作る(sukhi-setup の docs/PREPARE.md)。
 Secret=erlang_cookie,type=mount,target=ERLANG_COOKIE
