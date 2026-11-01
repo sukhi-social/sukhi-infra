@@ -14,8 +14,9 @@ Environment=SERVE_ROBOTS_TXT=true
 Environment=COOKIE_PARTITIONED=true
 # 方針・連絡先(POLICY_FNAME / IMPRINT_FILE)は image に焼かれている前提。パスは実機で確かめる(未確認)。
 Secret=anubis_ed25519_key,type=env,target=ED25519_PRIVATE_KEY_HEX
-# 外に出すのはここだけ。ホストの nginx が 127.0.0.1:8080 へ向く。
-PublishPort=127.0.0.1:8080:8080
+# 外に出すのはここだけ。ホストの nginx が 127.0.0.1:8081 へ向く。
+# ホスト側は 8081(8080 は同じ箱の haloyd が使っている)。コンテナの中は 8080(BIND)のまま。
+PublishPort=127.0.0.1:8081:8080
 Label=app=sukhi
 DropCapability=ALL
 NoNewPrivileges=true
