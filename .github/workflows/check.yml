@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+name: check
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  structure:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/check.sh
+  signatures:
+    # PR が指すダイジェストすべてに cosign verify(身元は sukhi-fedi の release.yml / combined-sha.yml)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sigstore/cosign-installer@v3.7.0
+      - run: SUKHI_COSIGN=1 scripts/check.sh
+  quadlet-dryrun:
+    # base + overlay を重ねて、Quadlet が unit を生成できるか。
+    # 注意: runner の Podman(4.9)は箱の版と違い、Notify=healthy などを知らないかもしれない。
+    # 箱の版が決まる(OPS_QUADLET_GITOPS.md §12-6)まで、結果は参考(落ちても PR は止めない)。
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    strategy:
+      matrix:
+        env: [dev, prod]
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          set -eu
+          out="$RUNNER_TEMP/quadlet-${{ matrix.env }}"
+          mkdir -p "$out"
+          cp -a base/. "$out/"
+          cp -a overlays/${{ matrix.env }}/. "$out/"
+          q=$(command -v quadlet || ls /usr/libexec/podman/quadlet /usr/lib/podman/quadlet 2>/dev/null | head -1)
+          echo "quadlet: $q"; podman --version
+          QUADLET_UNIT_DIRS="$out" "$q" -dryrun -user

@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+[Unit]
+Description=sukhi Anubis
+After=sukhi-gateway.service
+
+[Container]
+ContainerName=sukhi-anubis
+Image=ghcr.io/sukhi-social/sukhi-fedi-anubis:sha-0000000@sha256:0000000000000000000000000000000000000000000000000000000000000000
+Network=sukhi.network
+Environment=BIND=:8080
+Environment=TARGET=http://sukhi-gateway:4000
+Environment=DIFFICULTY=4
+Environment=SERVE_ROBOTS_TXT=true
+Environment=COOKIE_PARTITIONED=true
+# 方針・連絡先(POLICY_FNAME / IMPRINT_FILE)は image に焼かれている前提。パスは実機で確かめる(未確認)。
+Secret=anubis_ed25519_key,type=env,target=ED25519_PRIVATE_KEY_HEX
+# 外に出すのはここだけ。ホストの nginx が 127.0.0.1:8080 へ向く。
+PublishPort=127.0.0.1:8080:8080
+Label=app=sukhi
+DropCapability=ALL
+NoNewPrivileges=true
+# TODO: Anubis の確認用の口を実機で確かめて HealthCmd を足す(未確認)。
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
