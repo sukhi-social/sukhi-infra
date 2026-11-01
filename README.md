@@ -23,7 +23,7 @@ renovate.json            第三者の image(nats など)だけ Renovate。sukhi 
 
 - **秘密は置かない。** `podman secret`(`Secret=` で渡す)。`scripts/check.sh` が `Environment=` の秘密らしい名前を弾く。
 - **`Image=` は `base/` の本体にだけ**、`<name>:<tag>@sha256:<64桁>` の形で。ドロップインに置くと Renovate と bump が見ない。
-- **sukhi の 4 つの image(combined / web-next / web-simple / web-board / anubis)は、同じ `sha-<commit>` に揃える。** sukhi-fedi の CI が 1 つの PR で書き換える。
+- **sukhi の 5 つの image(combined / web-next / web-simple / web-board / anubis)は、同じ `sha-<commit>` に揃える。** sukhi-fedi の CI が 1 つの PR で書き換える(nats など第三者の image は Renovate)。
 - 0 埋めのダイジェストは**仮**。同期スクリプトはこれを適用しない。最初の bump で本物に替わる。
 - dev だけ先の sha にしたいときは overlay に `Image=` を置けるが、bump の対象外。prod へ上げるのは base への PR。
 
