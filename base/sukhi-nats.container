@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+[Unit]
+Description=sukhi NATS
+
+[Container]
+ContainerName=sukhi-nats
+# 第三者の image。Renovate が見る(renovate.json)。ダイジェストは bump で入る。
+Image=docker.io/library/nats:2-alpine@sha256:0000000000000000000000000000000000000000000000000000000000000000
+Network=sukhi.network
+# 素の core NATS(JetStream なし)。監視の口 8222 がヘルスに使われる。
+Exec=--http_port 8222
+Label=app=sukhi
+DropCapability=ALL
+NoNewPrivileges=true
+HealthCmd=wget -q -O /dev/null http://127.0.0.1:8222/healthz
+HealthInterval=15s
+HealthTimeout=3s
+HealthRetries=3
+HealthStartPeriod=10s
+HealthOnFailure=kill
+Notify=healthy
+
+[Service]
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=60
+
+[Install]
+WantedBy=default.target

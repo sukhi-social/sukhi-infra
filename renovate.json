@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["quadlet", "github-actions"],
+  "pinDigests": true,
+  "automerge": false,
+  "packageRules": [
+    {
+      "description": "sukhi の image は {{version}} の形で Quadlet マネージャには読めない。overlays/<env>/sukhi.version を scripts/bump-version.rb で 5 つ同時に上げる(docs: OPS_QUADLET_GITOPS.md §5)",
+      "matchPackageNames": ["ghcr.io/sukhi-social/**"],
+      "enabled": false
+    }
+  ]
+}

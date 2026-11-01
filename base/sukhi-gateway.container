@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+[Unit]
+Description=sukhi gateway (combined)
+Requires=sukhi-nats.service
+After=sukhi-nats.service
+
+[Container]
+ContainerName=sukhi-gateway
+# image の版とダイジェストは箱の同期スクリプト(sukhi-render)が overlays/<env>/sukhi.version で埋める。
+Image=ghcr.io/sukhi-social/sukhi-fedi-combined:{{version}}@{{digest:combined}}
+Network=sukhi.network
+Volume=sukhi-data.volume:/var/lib/sukhi:Z
+Environment=SUKHI_STORE=datalevin
+Environment=DATALEVIN_DIR=/var/lib/sukhi/datalevin
+Environment=SUKHI_QUEUE_DB=/var/lib/sukhi/queue.db
+Environment=DELIVERY_QUEUE_DB=/var/lib/sukhi/delivery_queue.db
+Environment=SUKHI_GRAPH=1
+Environment=NATS_URL=nats://sukhi-nats:4222
+Environment=WEB_UPSTREAMS=web-next=http://sukhi-web-next:3000
+# DOMAIN などの環境ごとの値は overlays/<env>/ に置く。
+# 秘密は事前に podman secret で作る(sukhi-setup の docs/PREPARE.md)。
+Secret=erlang_cookie,type=mount,target=ERLANG_COOKIE
+Secret=secret_key_base,type=mount,target=SECRET_KEY_BASE
+Label=app=sukhi
+DropCapability=ALL
+NoNewPrivileges=true
+# image に curl は無い。Alpine の busybox wget を使う。
+HealthCmd=wget -q -O /dev/null http://127.0.0.1:4000/up
+HealthInterval=15s
+HealthTimeout=3s
+HealthRetries=3
+HealthStartPeriod=90s
+HealthOnFailure=kill
+Notify=healthy
+
+[Service]
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=180
+
+[Install]
+WantedBy=default.target
