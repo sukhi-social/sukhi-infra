@@ -14,7 +14,7 @@ jobs:
       # {{version}} / {{digest:*}} の埋め方は sukhi-setup の bin/sukhi-render が唯一の場所
       - uses: actions/checkout@v4
         with: { repository: sukhi-social/sukhi-setup, path: .setup }
-      - run: SUKHI_SETUP=.setup scripts/check.sh
+      - run: SUKHI_SETUP=.setup ruby scripts/check.rb
   signatures:
     # PR が指すダイジェストすべてに cosign verify(身元は sukhi-fedi の release.yml / combined-sha.yml)
     runs-on: ubuntu-24.04
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with: { repository: sukhi-social/sukhi-setup, path: .setup }
       - uses: sigstore/cosign-installer@v3.7.0
-      - run: SUKHI_SETUP=.setup SUKHI_COSIGN=1 scripts/check.sh
+      - run: SUKHI_SETUP=.setup SUKHI_COSIGN=1 ruby scripts/check.rb
   quadlet-dryrun:
     # base + overlay を重ねて、Quadlet が unit を生成できるか。
     # 注意: runner の Podman(4.9)は箱の版と違い、Notify=healthy などを知らないかもしれない。
@@ -43,7 +43,7 @@ jobs:
           mkdir -p "$out"
           cp -a base/. "$out/"
           cp -a overlays/${{ matrix.env }}/. "$out/"
-          .setup/bin/sukhi-render overlays/${{ matrix.env }}/sukhi.version "$out"
+          ruby .setup/bin/sukhi-render overlays/${{ matrix.env }}/sukhi.version "$out"
           rm -f "$out/sukhi.version"
           q=$(command -v quadlet || ls /usr/libexec/podman/quadlet /usr/lib/podman/quadlet 2>/dev/null | head -1)
           echo "quadlet: $q"; podman --version
