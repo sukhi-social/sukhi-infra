@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# dev の版を上げる。main の sha を入れて実行 → digest 確認 → 承認 → main に反映。
+name: bump-dev
+on:
+  workflow_dispatch:
+    inputs:
+      sha: { description: "sukhi-fedi main のコミット sha(7〜40 桁。sha- は付けても付けなくてもよい)", required: true, type: string }
+permissions:
+  contents: read
+jobs:
+  normalize:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - id: v
+        env: { SHA: "${{ inputs.sha }}" }
+        run: |
+          s="${SHA#sha-}"
+          echo "$s" | grep -Eq '^[0-9a-f]{7,40}$' || { echo "sha は 16 進の 7〜40 桁" >&2; exit 1; }
+          # combined-sha.yml のタグは sha-<先頭 7 桁>
+          echo "version=sha-${s:0:7}" >> "$GITHUB_OUTPUT"
+  bump:
+    needs: normalize
+    uses: ./.github/workflows/_bump.yml
+    permissions:
+      contents: write
+    with:
+      env: dev
+      version: ${{ needs.normalize.outputs.version }}

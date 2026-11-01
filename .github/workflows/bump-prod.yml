@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# prod の版を上げる。リリースの semver を入れて実行 → digest 確認 → 承認 → main に反映。
+name: bump-prod
+on:
+  workflow_dispatch:
+    inputs:
+      version: { description: "リリースの版(例 1.2.3。v は付けない)", required: true, type: string }
+permissions:
+  contents: read
+jobs:
+  bump:
+    uses: ./.github/workflows/_bump.yml
+    permissions:
+      contents: write
+    with:
+      env: prod
+      version: ${{ inputs.version }}

@@ -1,0 +1,76 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# bump-prod / bump-dev の本体。digest を解決・検証し、人が「承認」を押したら main に 1 コミット入れる。
+name: _bump
+on:
+  workflow_call:
+    inputs:
+      env: { type: string, required: true }      # prod / dev
+      version: { type: string, required: true }  # prod: X.Y.Z, dev: sha-<7〜40 桁の 16 進>
+permissions:
+  contents: read
+jobs:
+  plan:
+    # 1. digest を解決して、cosign で署名を確かめる。差分を要約に出すだけ(何も書き込まない)
+    runs-on: ubuntu-24.04
+    outputs:
+      base_sha: ${{ steps.base.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: base
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with: { repository: sukhi-social/sukhi-setup, path: .setup }
+      - uses: sigstore/cosign-installer@v3.7.0
+      - name: resolve digests
+        env: { BUMP_ENV: "${{ inputs.env }}", BUMP_VERSION: "${{ inputs.version }}" }
+        run: ruby scripts/bump-version.rb "$BUMP_ENV" "$BUMP_VERSION"
+      - name: verify (structure, render, cosign)
+        run: SUKHI_SETUP=.setup SUKHI_COSIGN=1 ruby scripts/check.rb
+      - name: summary
+        env: { BUMP_ENV: "${{ inputs.env }}", BUMP_VERSION: "${{ inputs.version }}" }
+        run: |
+          {
+            echo "## bump $BUMP_ENV → $BUMP_VERSION"
+            echo "cosign の検証は通りました。下の差分を見て、**承認**を押すと main に反映されます。"
+            echo '```diff'; git diff -U0 -- "overlays/$BUMP_ENV/sukhi.version"; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sukhi-version-${{ inputs.env }}
+          path: overlays/${{ inputs.env }}/sukhi.version
+          retention-days: 1
+  apply:
+    # 2. 承認(environment の required reviewers)のあとだけ動く。main がずれていたら止める
+    needs: plan
+    runs-on: ubuntu-24.04
+    environment: bump-${{ inputs.env }}
+    permissions:
+      contents: write
+    concurrency: bump-${{ inputs.env }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - name: main has not moved
+        env: { BASE: "${{ needs.plan.outputs.base_sha }}" }
+        run: |
+          [ "$(git rev-parse HEAD)" = "$BASE" ] || { echo "main が動いた(plan: $BASE)。もう一度 bump を流してください" >&2; exit 1; }
+      - uses: actions/download-artifact@v4
+        with: { name: "sukhi-version-${{ inputs.env }}", path: "${{ runner.temp }}/bump" }
+      - name: commit via the API (GitHub signs it)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUMP_ENV: ${{ inputs.env }}
+          BUMP_VERSION: ${{ inputs.version }}
+          RUNNER_TMP: ${{ runner.temp }}
+        run: |
+          set -eu
+          path="overlays/$BUMP_ENV/sukhi.version"
+          new="$RUNNER_TMP/bump/sukhi.version"
+          # 差分は版とダイジェストの行だけ(ほかを書き換えていない)
+          diff <(git show "HEAD:$path") "$new" | grep '^[<>]' | grep -Ev '^[<>] (version|digest\.[A-Za-z0-9._-]+):' && { echo "想定外の行が変わっている" >&2; exit 1; } || true
+          # contents API で作ったコミットは GitHub が署名する(箱の gpg 検証が通る)
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/contents/$path" \
+            -f message="bump $BUMP_ENV to $BUMP_VERSION" \
+            -f content="$(base64 -w0 "$new")" \
+            -f sha="$(git rev-parse "HEAD:$path")" \
+            -f branch=main --jq '.commit.html_url' >> "$GITHUB_STEP_SUMMARY"

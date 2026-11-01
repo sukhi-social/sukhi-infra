@@ -54,3 +54,25 @@ SUKHI_SETUP=../sukhi-setup SUKHI_COSIGN=1 ruby scripts/check.rb   # 埋めたあ
 - Anubis のヘルスの口、設定ファイルの置き場(image に焼かれている前提のパス)。
 - Renovate の Quadlet マネージャで `pinDigests` が効くか。
 - `bump-version.rb` の `skopeo inspect` が multi-arch 一覧のダイジェストを返すか(リリースのタグがまだ無いので試せていない)。
+
+## 版を上げる(bump-prod / bump-dev)
+
+Actions の **bump-prod**(リリースの版 `1.2.3`)か **bump-dev**(sukhi-fedi main のコミット sha)を「Run workflow」で流す。
+
+1. **plan**: `scripts/bump-version.rb` で image のダイジェストを引き、`scripts/check.rb`(構造・描画・cosign)で署名を確かめる。差分(版と digest の行)をジョブの要約に出す。何も書き込まない。
+2. **承認**: environment `bump-prod` / `bump-dev` の required reviewers が、要約の差分を見て「Approve」を押す。
+3. **apply**: main が plan のときから動いていないことを確かめ、`overlays/<env>/sukhi.version` だけを contents API で 1 コミットにする。
+   API で作ったコミットは GitHub が署名するので、箱の gpg 検証(web-flow の鍵)を通る。箱は次の同期で拾い、ヘルス確認と戻しは同期スクリプトがやる。
+
+### 先に設定が要るもの(リポジトリ設定。コードでは入れられない)
+
+- Settings > Environments に **`bump-prod`**(required reviewers: ひなた)と **`bump-dev`**(同じでも、無しでもよい)を作る。承認の関所はこれ。
+- main のブランチ保護が PR を必須にしているなら、`github-actions` を bypass に入れる(入れないと apply が弾かれる)。
+  入れたくなければ apply を「PR を作って自動マージ」に変える。
+- Settings > Actions > General の Workflow permissions は、読み取りが既定のままでよい(apply のジョブだけが `contents: write` を要求する)。
+
+### 未確認
+
+- contents API のコミットが、`GITHUB_TOKEN` でも GitHub に署名されること(最初の bump で `git log --show-signature` を見る)。
+- `skopeo` が ubuntu-24.04 の runner に入っていること、multi-arch のダイジェストが返ること。
+- 呼び出し側の `permissions: contents: write` と、reusable workflow の environment の組み合わせ(最初に流して確かめる)。
