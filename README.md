@@ -74,5 +74,5 @@ Actions の **bump-prod**(リリースの版 `1.2.3`)か **bump-dev**(sukhi-fedi
 ### 未確認
 
 - contents API のコミットが、`GITHUB_TOKEN` でも GitHub に署名されること(最初の bump で `git log --show-signature` を見る)。
-- `skopeo` が ubuntu-24.04 の runner に入っていること、multi-arch のダイジェストが返ること。
+- `skopeo` が ubuntu-24.04 の runner に入っていること(digest は `inspect --raw` の生データから計算するので、arm64 だけの image でも通るはず)。
 - 呼び出し側の `permissions: contents: write` と、reusable workflow の environment の組み合わせ(最初に流して確かめる)。
