@@ -6,8 +6,8 @@ After=sukhi-nats.service
 
 [Container]
 ContainerName=sukhi-gateway
-# タグ + ダイジェスト。実体はダイジェストが決める。この行は CI の bump が書き換える。
-Image=ghcr.io/sukhi-social/sukhi-fedi-combined:sha-0000000@sha256:0000000000000000000000000000000000000000000000000000000000000000
+# image の版とダイジェストは箱の同期スクリプト(sukhi-render)が overlays/<env>/sukhi.version で埋める。
+Image=ghcr.io/sukhi-social/sukhi-fedi-combined:{{version}}@{{digest:combined}}
 Network=sukhi.network
 Volume=sukhi-data.volume:/var/lib/sukhi:Z
 Environment=SUKHI_STORE=datalevin

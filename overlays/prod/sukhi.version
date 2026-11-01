@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# この環境が期待する sukhi の版(1 行 1 項目)。bump は scripts/bump-version.sh。
+# dev は main の sha-<commit>、prod はリリースの semver。0 埋めのダイジェストは仮で、同期スクリプトは適用しない。
+# {{version}} / {{digest:<name>}} を base の unit が参照する(埋めるのは sukhi-setup の sukhi-render)。
+requires-sync: 1
+version: 1.0.0
+digest.combined:    sha256:0000000000000000000000000000000000000000000000000000000000000000
+digest.web-next:    sha256:0000000000000000000000000000000000000000000000000000000000000000
+digest.web-simple:  sha256:0000000000000000000000000000000000000000000000000000000000000000
+digest.web-board:   sha256:0000000000000000000000000000000000000000000000000000000000000000
+digest.anubis:      sha256:0000000000000000000000000000000000000000000000000000000000000000

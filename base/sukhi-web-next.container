@@ -5,7 +5,7 @@ After=sukhi-gateway.service
 
 [Container]
 ContainerName=sukhi-web-next
-Image=ghcr.io/sukhi-social/sukhi-fedi-web-next:sha-0000000@sha256:0000000000000000000000000000000000000000000000000000000000000000
+Image=ghcr.io/sukhi-social/sukhi-fedi-web-next:{{version}}@{{digest:web-next}}
 Network=sukhi.network
 Label=app=sukhi
 DropCapability=ALL

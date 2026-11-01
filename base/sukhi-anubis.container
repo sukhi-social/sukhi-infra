@@ -5,7 +5,7 @@ After=sukhi-gateway.service
 
 [Container]
 ContainerName=sukhi-anubis
-Image=ghcr.io/sukhi-social/sukhi-fedi-anubis:sha-0000000@sha256:0000000000000000000000000000000000000000000000000000000000000000
+Image=ghcr.io/sukhi-social/sukhi-fedi-anubis:{{version}}@{{digest:anubis}}
 Network=sukhi.network
 Environment=BIND=:8080
 Environment=TARGET=http://sukhi-gateway:4000

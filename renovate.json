@@ -6,7 +6,7 @@
   "automerge": false,
   "packageRules": [
     {
-      "description": "sukhi の image は sha-タグで順序が無い。sukhi-fedi の CI が 4 つ同時に bump する(docs: OPS_QUADLET_GITOPS.md §5)",
+      "description": "sukhi の image は {{version}} の形で Quadlet マネージャには読めない。overlays/<env>/sukhi.version を scripts/bump-version.sh で 5 つ同時に上げる(docs: OPS_QUADLET_GITOPS.md §5)",
       "matchPackageNames": ["ghcr.io/sukhi-social/**"],
       "enabled": false
     }
