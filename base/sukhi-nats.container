@@ -5,7 +5,7 @@ Description=sukhi NATS
 [Container]
 ContainerName=sukhi-nats
 # 第三者の image。Renovate が見る(renovate.json)。ダイジェストは bump で入る。
-Image=docker.io/library/nats:2-alpine@sha256:0000000000000000000000000000000000000000000000000000000000000000
+Image=docker.io/library/nats:2-alpine@sha256:823e7f1d6d8ffe3b30dbd73d4a06bbb939acf94929f7fdf224404da7a05bafb5
 Network=sukhi.network
 # 素の core NATS(JetStream なし)。監視の口 8222 がヘルスに使われる。
 Exec=--http_port 8222
