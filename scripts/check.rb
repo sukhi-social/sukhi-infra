@@ -10,6 +10,7 @@
 # {{version}} / {{digest:*}} を埋めるのは sukhi-setup の bin/sukhi-render(埋め方の唯一の場所)。ここでは再実装しない。
 
 require "fileutils"
+require "json"
 require "open3"
 require "tmpdir"
 
@@ -23,6 +24,7 @@ ZERO = "sha256:#{'0' * 64}"
 SUKHI_IMAGE = %r{\Aghcr\.io/sukhi-social/sukhi-fedi-([a-z0-9-]+):\{\{version\}\}@\{\{digest:([a-z0-9-]+)\}\}\z}.freeze
 PINNED_IMAGE = %r{\A[^@{}]+:[^@:/{}]+@sha256:[0-9a-f]{64}\z}.freeze
 SECRET_ENV = /\A(Environment|EnvironmentFile)=[A-Z_]*(SECRET|PASSWORD|TOKEN|PRIVATE_KEY|ERLANG_COOKIE)[A-Z_]*=/.freeze
+PLACEHOLDER_DOMAIN = /\A(?:CHANGE-ME|example(?:\.invalid)?|localhost)(?:[.:]|$)/i.freeze
 strict = ENV["SUKHI_STRICT"] == "1"
 @failed = false
 
@@ -38,6 +40,13 @@ def placeholder(msg, strict)
 end
 
 def lines(file) = File.readlines(file, chomp: true)
+
+def load_json(path)
+  JSON.parse(File.read(path))
+rescue JSON::ParserError => e
+  err("#{path}: JSON が不正: #{e.message}")
+  nil
+end
 
 # 1. sukhi の image は {{version}} / {{digest:<name>}} の形だけ。ほかは <name>:<tag>@sha256:<64桁>。Image= は base にだけ。
 Dir.glob("overlays/**/*").select { |f| File.file?(f) }.each do |f|
@@ -61,6 +70,69 @@ Dir.glob("base/*.container").sort.each do |f|
   end
 end
 names = names.uniq.sort
+
+# 1b. instance.json is the non-secret runtime contract for sukhi-fedi.
+instance_paths = ["base/instance.json"] + Dir.glob("overlays/*/instance.json").sort
+frontend_units = Dir.glob("base/sukhi-web-*.container").map { |f| File.basename(f, ".container").delete_prefix("sukhi-") }.sort
+instance_paths.each do |path|
+  config = load_json(path)
+  next unless config.is_a?(Hash)
+
+  %w[version domain frontend upstreams routes site].each do |key|
+    err("#{path}: #{key} がない") unless config.key?(key)
+  end
+  err("#{path}: version は 1") unless config["version"] == 1
+  domain = config["domain"].to_s
+  err("#{path}: domain が空") if domain.empty?
+  err("#{path}: placeholder domain は使えない: #{domain}") if domain.match?(PLACEHOLDER_DOMAIN)
+
+  frontend = config["frontend"].to_s
+  err("#{path}: frontend が存在しない unit を指している: #{frontend}") unless frontend_units.include?(frontend)
+  upstreams = config["upstreams"]
+  unless upstreams.is_a?(Hash) && !upstreams.empty?
+    err("#{path}: upstreams は空でない object")
+    upstreams = {}
+  end
+  upstreams.each do |name, url|
+    err("#{path}: upstream #{name} が存在しない frontend unit を指している") unless frontend_units.include?(name.to_s)
+    err("#{path}: upstream #{name} の URL が不正: #{url}") unless url.is_a?(String) && url.match?(%r{\Ahttps?://[A-Za-z0-9._-]+:\d+\z})
+  end
+  routes = config["routes"]
+  unless routes.is_a?(Array) && !routes.empty?
+    err("#{path}: routes は空でない array")
+    routes = []
+  end
+  routes.each do |route|
+    unless route.is_a?(Hash) && route["path"].is_a?(String) && route["path"].start_with?("/") && route["upstream"].is_a?(String)
+      err("#{path}: route は path と upstream を持つ object")
+      next
+    end
+    err("#{path}: route #{route["path"]} の upstream がない: #{route["upstream"]}") unless upstreams.key?(route["upstream"])
+  end
+  err("#{path}: frontend #{frontend} の upstream がない") unless upstreams.key?(frontend)
+  err("#{path}: frontend #{frontend} への route がない") unless routes.any? { |route| route.is_a?(Hash) && route["upstream"] == frontend }
+  site = config["site"]
+  unless site.is_a?(Hash)
+    err("#{path}: site は object")
+    next
+  end
+  %w[name logo icon].each do |key|
+    value = site[key]
+    err("#{path}: site.#{key} が空") unless value.is_a?(String) && !value.empty?
+    err("#{path}: site.#{key} に placeholder がある") if value.to_s.match?(/CHANGE-ME|example\.invalid/i)
+  end
+end
+
+gateway = "base/sukhi-gateway.container"
+gateway_lines = lines(gateway)
+err("#{gateway}: instance.json の read-only mount がない") unless gateway_lines.include?("Volume=/etc/sukhi/instance.json:/etc/sukhi/instance.json:ro")
+err("#{gateway}: SUKHI_INSTANCE_CONFIG がない") unless gateway_lines.include?("Environment=SUKHI_INSTANCE_CONFIG=/etc/sukhi/instance.json")
+gateway_lines.grep(/\AVolume=/).each do |line|
+  source, target, mode = line.delete_prefix("Volume=").split(":", 3)
+  next unless source&.start_with?("/")
+  err("#{gateway}: rootless で使えない相対 bind mount") unless target&.start_with?("/")
+  err("#{gateway}: instance config は read-only で mount する") if target == "/etc/sukhi/instance.json" && mode != "ro"
+end
 
 # 2. 環境ごとの sukhi.version
 Dir.glob("overlays/*").select { |d| File.directory?(d) }.sort.each do |d|
