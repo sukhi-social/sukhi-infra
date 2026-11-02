@@ -11,7 +11,8 @@ sukhi の**箱が実行するもの**の正本。Podman Quadlet の unit(`*.cont
 
 ```
 base/                    全環境共通の unit。sukhi の image は {{version}} / {{digest:<name>}} の形
-overlays/<env>/          環境ごとの差分: sukhi.version(期待する版)と <unit>.container.d/*.conf
+base/instance.json       非秘密の instance config の既定値
+overlays/<env>/          環境ごとの差分: instance.json、sukhi.version(期待する版)、<unit>.container.d/*.conf
 scripts/check.rb         点検(Ruby。標準ライブラリだけ)(CI と手元で同じ)
 scripts/bump-version.rb  (Ruby)sukhi.version の版とダイジェストを書き換える(手でも CI からも)
 renovate.json            第三者の image(nats など)だけ Renovate
@@ -20,6 +21,11 @@ renovate.json            第三者の image(nats など)だけ Renovate
 箱は `/etc/sukhi/env` の環境名(`dev` / `prod`)で `overlays/<env>/` を選び、`base/` の上に**重ねて平らに書き出し**、
 `sukhi.version` の値で `{{version}}` / `{{digest:*}}` を埋める(埋め方は sukhi-setup の `bin/sukhi-render` の一か所)。
 ドロップインは Quadlet の仕組みで、同じキーは後のファイルが勝ち、`Environment=` は足される。
+
+`instance.json` は sukhi-fedi と共有する非秘密の契約で、`frontend`、`upstreams`、`routes`、`domain`、
+`site.name` / `site.logo` / `site.icon` を明示する。gateway は完成したファイルを
+`/etc/sukhi/instance.json` として read-only mount し、`SUKHI_INSTANCE_CONFIG` でパスを渡す。
+秘密は引き続き `Secret=` のままにする。
 
 ## 版(sukhi.version)
 
@@ -43,7 +49,7 @@ digest.combined: sha256:<64桁>    # {{digest:combined}} に入る。web-next / 
 ## 点検
 
 ```sh
-ruby scripts/check.rb              # 構造・Image= の形・sha の一致・秘密の混入
+ruby scripts/check.rb              # 構造・instance.json・Image= の形・sha の一致・秘密の混入
 SUKHI_STRICT=1 ruby scripts/check.rb   # 仮のダイジェストも失敗にする
 SUKHI_SETUP=../sukhi-setup SUKHI_COSIGN=1 ruby scripts/check.rb   # 埋めたあとの image に cosign verify(要 cosign と sukhi-setup のチェックアウト)
 ```

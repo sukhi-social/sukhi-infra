@@ -16,7 +16,9 @@ Environment=SUKHI_QUEUE_DB=/var/lib/sukhi/queue.db
 Environment=DELIVERY_QUEUE_DB=/var/lib/sukhi/delivery_queue.db
 Environment=SUKHI_GRAPH=1
 Environment=NATS_URL=nats://sukhi-nats:4222
-Environment=WEB_UPSTREAMS=web-next=http://sukhi-web-next:3000
+# The environment overlay supplies /etc/sukhi/instance.json. Keep it read-only.
+Volume=/etc/sukhi/instance.json:/etc/sukhi/instance.json:ro
+Environment=SUKHI_INSTANCE_CONFIG=/etc/sukhi/instance.json
 # `/` は既定だと nodeinfo_monitor アドオン(NodeInfo viewer)が答え、web-next に渡らない。
 # SNS として使うので切る(viewer とウォッチャー bot の登録は 404 になる)。
 Environment=DISABLE_ADDONS=nodeinfo_monitor

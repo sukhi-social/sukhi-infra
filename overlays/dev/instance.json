@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "domain": "dev.sukhi.social",
+  "frontend": "web-next",
+  "upstreams": {
+    "web-next": "http://sukhi-web-next:3000"
+  },
+  "routes": [
+    {
+      "path": "/",
+      "upstream": "web-next"
+    }
+  ],
+  "site": {
+    "name": "Sukhi Development",
+    "logo": "/.sukhi/logo.svg",
+    "icon": "/.sukhi/icon.svg"
+  }
+}
