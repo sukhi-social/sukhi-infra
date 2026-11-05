@@ -17,8 +17,8 @@
 
 Since it's run by one person, the operator is the contact point.
 
-- **Email**: f3liz-dev@proton.me
-- **ActivityPub**: @kuro_admin@sukhi.f3liz.casa
+- **Email**: hinata@natadeco.com
+- **ActivityPub**: @kuro_admin@sukhi.social
 
 For questions, complaints or exercising your rights about personal information, please feel free to use the contacts above.
 
@@ -173,7 +173,7 @@ These rights are written from the APPI (Articles 33 to 35), but we offer them to
 - **Stopping use, and erasure** — when we no longer need to use it, when a leak or similar has occurred, or when your rights or legitimate interests may be harmed (the situations where you can ask were widened by the 2022 amendment).
 - **Stopping provision to third parties**.
 
-**How to ask**: by email (f3liz-dev@proton.me) or DM. We'll respond after confirming that you are the person concerned, or a legitimate representative.
+**How to ask**: by email (hinata@natadeco.com) or DM. We'll respond after confirming that you are the person concerned, or a legitimate representative.
 
 **Our response**: we'll respond without delay. If it's going to take time, we'll tell you first. For disclosure and the like we may charge a fee within the actual cost (my intention is basically to respond free of charge).
 
