@@ -24,7 +24,6 @@ ZERO = "sha256:#{'0' * 64}"
 SUKHI_IMAGE = %r{\Aghcr\.io/sukhi-social/sukhi-fedi-([a-z0-9-]+):\{\{version\}\}@\{\{digest:([a-z0-9-]+)\}\}\z}.freeze
 PINNED_IMAGE = %r{\A[^@{}]+:[^@:/{}]+@sha256:[0-9a-f]{64}\z}.freeze
 SECRET_ENV = /\A(Environment|EnvironmentFile)=[A-Z_]*(SECRET|PASSWORD|TOKEN|PRIVATE_KEY|ERLANG_COOKIE)[A-Z_]*=/.freeze
-PLACEHOLDER_DOMAIN = /\A(?:CHANGE-ME|example(?:\.invalid)?|localhost)(?:[.:]|$)/i.freeze
 strict = ENV["SUKHI_STRICT"] == "1"
 @failed = false
 
@@ -85,48 +84,40 @@ instance_paths.each do |path|
   config = load_json(path)
   next unless config.is_a?(Hash)
 
-  %w[version domain frontend upstreams routes site].each do |key|
+  %w[site_name site_logo site_icon frontends routes].each do |key|
     err("#{path}: #{key} がない") unless config.key?(key)
   end
-  err("#{path}: version は 1") unless config["version"] == 1
-  domain = config["domain"].to_s
-  err("#{path}: domain が空") if domain.empty?
-  err("#{path}: placeholder domain は使えない: #{domain}") if domain.match?(PLACEHOLDER_DOMAIN)
+  %w[site_name site_logo site_icon].each do |key|
+    value = config[key]
+    err("#{path}: #{key} が空") unless value.is_a?(String) && !value.empty?
+    err("#{path}: #{key} に placeholder がある") if value.to_s.match?(/CHANGE-ME|example\.invalid/i)
+  end
 
-  frontend = config["frontend"].to_s
-  err("#{path}: frontend が存在しない unit を指している: #{frontend}") unless frontend_units.include?(frontend)
-  upstreams = config["upstreams"]
-  unless upstreams.is_a?(Hash) && !upstreams.empty?
-    err("#{path}: upstreams は空でない object")
-    upstreams = {}
+  frontends = config["frontends"]
+  unless frontends.is_a?(Hash) && !frontends.empty?
+    err("#{path}: frontends は空でない object")
+    frontends = {}
   end
-  upstreams.each do |name, url|
-    err("#{path}: upstream #{name} が存在しない frontend unit を指している") unless frontend_units.include?(name.to_s)
-    err("#{path}: upstream #{name} の URL が不正: #{url}") unless url.is_a?(String) && url.match?(%r{\Ahttps?://[A-Za-z0-9._-]+:\d+\z})
+  frontends.each do |name, definition|
+    err("#{path}: frontend #{name} が存在しない unit を指している") unless frontend_units.include?(name.to_s)
+    url = definition.is_a?(Hash) ? definition["url"] : nil
+    err("#{path}: frontend #{name} の URL が不正: #{url}") unless url.is_a?(String) && url.match?(%r{\Ahttps?://[A-Za-z0-9._-]+:\d+\z})
   end
+
   routes = config["routes"]
   unless routes.is_a?(Array) && !routes.empty?
     err("#{path}: routes は空でない array")
     routes = []
   end
   routes.each do |route|
-    unless route.is_a?(Hash) && route["path"].is_a?(String) && route["path"].start_with?("/") && route["upstream"].is_a?(String)
-      err("#{path}: route は path と upstream を持つ object")
+    unless route.is_a?(Hash) && route["pattern"].is_a?(String) && route["pattern"].start_with?("/") && route["frontend"].is_a?(String)
+      err("#{path}: route は pattern と frontend を持つ object")
       next
     end
-    err("#{path}: route #{route["path"]} の upstream がない: #{route["upstream"]}") unless upstreams.key?(route["upstream"])
+    err("#{path}: route #{route["pattern"]} の frontend が宣言されていない: #{route["frontend"]}") unless frontends.key?(route["frontend"])
   end
-  err("#{path}: frontend #{frontend} の upstream がない") unless upstreams.key?(frontend)
-  err("#{path}: frontend #{frontend} への route がない") unless routes.any? { |route| route.is_a?(Hash) && route["upstream"] == frontend }
-  site = config["site"]
-  unless site.is_a?(Hash)
-    err("#{path}: site は object")
-    next
-  end
-  %w[name logo icon].each do |key|
-    value = site[key]
-    err("#{path}: site.#{key} が空") unless value.is_a?(String) && !value.empty?
-    err("#{path}: site.#{key} に placeholder がある") if value.to_s.match?(/CHANGE-ME|example\.invalid/i)
+  frontends.each_key do |name|
+    err("#{path}: frontend #{name} への route がない") unless routes.any? { |route| route.is_a?(Hash) && route["frontend"] == name }
   end
 end
 

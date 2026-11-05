@@ -1,19 +1,14 @@
 {
-  "version": 1,
-  "domain": "sukhi.social",
-  "frontend": "web-next",
-  "upstreams": {
-    "web-next": "http://sukhi-web-next:3000"
+  "site_name": "Sukhi",
+  "site_logo": "/.sukhi/logo.svg",
+  "site_icon": "/.sukhi/icon.svg",
+  "addons": {
+    "nodeinfo_monitor": false
+  },
+  "frontends": {
+    "web-next": { "url": "http://sukhi-web-next:3000" }
   },
   "routes": [
-    {
-      "path": "/",
-      "upstream": "web-next"
-    }
-  ],
-  "site": {
-    "name": "Sukhi",
-    "logo": "/.sukhi/logo.svg",
-    "icon": "/.sukhi/icon.svg"
-  }
+    { "pattern": "/", "frontend": "web-next" }
+  ]
 }
