@@ -10,7 +10,7 @@ Network=sukhi.network
 # image は uid 10001 で書く。
 UserNS=keep-id:uid=10001,gid=10001
 User=10001:10001
-Volume=sukhi-rustfs.volume:/data:Z
+# /data の mount は overlay が決める(dev は named volume、prod は箱の bind)。
 Environment=RUSTFS_VOLUMES=/data
 Environment=RUSTFS_ADDRESS=:9000
 Environment=RUSTFS_CONSOLE_ENABLE=false
