@@ -73,6 +73,13 @@ names = names.uniq.sort
 
 # 1b. instance.json is the non-secret runtime contract for sukhi-fedi.
 instance_paths = ["base/instance.json"] + Dir.glob("overlays/*/instance.json").sort
+# 箱の /etc/sukhi/instance.json は stow が stow/<env>/instance.json から張る。実体は overlay の一つだけ(写しを持たない)。
+Dir.glob("overlays/*/instance.json").sort.each do |path|
+  env = path.split("/")[1]
+  link = "stow/#{env}/instance.json"
+  want = "../../overlays/#{env}/instance.json"
+  err("#{link}: #{want} への symlink にする") unless File.symlink?(link) && File.readlink(link) == want
+end
 frontend_units = Dir.glob("base/sukhi-web-*.container").map { |f| File.basename(f, ".container").delete_prefix("sukhi-") }.sort
 instance_paths.each do |path|
   config = load_json(path)
