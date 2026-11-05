@@ -88,6 +88,6 @@
 困ったこと、聞きたいこと――気軽に、声をかけてください。
 
 - ActivityPub(運営アカウント): [@kuro_admin@sukhi.social]
-- Email: [admin@natadeco.com]
+- Email: [hinata@natadeco.com]
 
 届いたものは、ぜんぶ読みます。返事に時間がかかりそうなときは、途中でいちど「読みました」とだけお知らせします。

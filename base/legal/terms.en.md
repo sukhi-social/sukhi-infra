@@ -90,7 +90,7 @@ How we handle personal information is written in the [Privacy Policy](/privacy?l
 If something's troubling you, or you want to ask something, please feel free to reach out.
 
 - ActivityPub (operator account): [@kuro_admin@sukhi.social]
-- Email: [admin@natadeco.com]
+- Email: [hinata@natadeco.com]
 
 I read everything that arrives. If a reply is going to take a while, I'll tell you partway that I've read it.
 
