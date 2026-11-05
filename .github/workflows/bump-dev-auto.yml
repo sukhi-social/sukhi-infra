@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# sukhi-fedi の main の image が揃ったら、dev の版を上げる PR を出す(マージは人)。
+# 別リポジトリからの合図は使わない(秘密を持ち込まない)。30 分おきに main の先頭を見る。
+# 手で今すぐ見たいときは、Actions から実行する。
+name: bump-dev-auto
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency: bump-dev-auto
+jobs:
+  propose:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write        # branch と版のコミット(main には書かない)
+      pull-requests: write
+      actions: write         # check.yml を起こす
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main }
+      - uses: actions/checkout@v4
+        with: { repository: sukhi-social/sukhi-setup, path: .setup }
+      - uses: sigstore/cosign-installer@v3.7.0
+      - run: scripts/propose-dev-bump.sh
+        env:
+          GH_TOKEN: ${{ github.token }}

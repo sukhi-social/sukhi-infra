@@ -40,6 +40,16 @@ digest.combined: sha256:<64桁>    # {{digest:combined}} に入る。web-next / 
 - prod は**リリースの版**(`v1.0.0` のタグで `release.yml` が付ける `1.0.0`)。`v1` や `latest` のような動くタグは書かない。
 - unit ごとの変化は、埋めたあとの `Image=` の差で見る。`digest.combined` だけ変われば gateway だけ再起動する。
 
+## 版の提案(dev)
+
+`bump-dev-auto`(30 分おき、または手で実行)が sukhi-fedi の main の先頭を見て、`combined` / `web-next` / `anubis` の image が `sha-<7桁>` で揃っていれば、
+**dev の版を上げる PR を一つ**出す(`auto/bump-dev`。次の main が来たら同じ PR を更新する)。出す前に、ダイジェストの解決・`check.rb`・cosign の検証を通す。
+**マージは人がする。** マージされると箱が引き、管理画面に「更新が来ています」と出る。入れる時機は管理画面の「いま入れる」。
+
+- リポジトリの設定 *Actions → General → Allow GitHub Actions to create and approve pull requests* が off だと PR を作れない。その場合も branch は出来ていて、job summary に「開く URL」が出る。
+- 自動で書くのは `auto/bump-dev` の branch だけ。main には書かない。prod は今までどおり semver で `bump-prod`。
+- 手で承認して直接 main に入れる `bump-dev`(environment 承認)は残してある。
+
 ## ルール
 
 - **秘密は置かない。** `podman secret`(`Secret=` で渡す)。`scripts/check.rb` が `Environment=` の秘密らしい名前を弾く。
