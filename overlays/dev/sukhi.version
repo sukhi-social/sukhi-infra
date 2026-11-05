@@ -6,6 +6,4 @@ requires-sync: 1
 version: sha-331192e
 digest.combined:    sha256:e0460af818e667f3c9a046a90aba51698765c226d44fb291e46c1735022cc852
 digest.web-next:    sha256:c010adfe69370102abd614599f3edf4c44a93d6d2d2ed77aee074796cca71fbe
-digest.web-simple:  sha256:24bee5052efa4eab3a4ca265d59ae88bb1f482af8a2bfd58f1d13be6913fedac
-digest.web-board:   sha256:518f29511100e276d27f83212859a63dd081ae4bdceb42272c4de19ee09c1b23
 digest.anubis:     sha256:1e2b684cf4b2df04503b73a87f4e3927babf3d45f5dcc760b654829aae3534e2
