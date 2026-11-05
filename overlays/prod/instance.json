@@ -10,5 +10,6 @@
   },
   "routes": [
     { "pattern": "/", "frontend": "web-next" }
-  ]
+  ],
+  "legal": { "dir": "/etc/sukhi/legal" }
 }
