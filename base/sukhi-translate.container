@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+[Unit]
+Description=sukhi translate (LibreTranslate, ja/en/ko)
+
+[Container]
+ContainerName=sukhi-translate
+# sukhi-fedi の translate/Dockerfile を CI が sha-<commit> で作る(combined-sha)。版とダイジェストは sukhi-render が overlays/<env>/sukhi.version で埋める。
+Image=ghcr.io/sukhi-social/sukhi-fedi-translate:{{version}}@{{digest:translate}}
+Network=sukhi.network
+# 公開しない(PublishPort を書かない)。gateway だけが http://sukhi-translate:5000 に届く。
+# 言語モデルは image に入っている(実行時に取りに行かない)。状態を持たないので volume は無い。
+Label=app=sukhi
+DropCapability=ALL
+NoNewPrivileges=true
+
+[Service]
+# gateway は翻訳が無くても動く。だから Notify=healthy で起動を待たせず、落ちたら起き直す。
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

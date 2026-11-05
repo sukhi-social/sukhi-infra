@@ -15,6 +15,8 @@ Environment=DATALEVIN_DIR=/var/lib/sukhi/datalevin
 Environment=SUKHI_QUEUE_DB=/var/lib/sukhi/queue.db
 Environment=DELIVERY_QUEUE_DB=/var/lib/sukhi/delivery_queue.db
 Environment=SUKHI_GRAPH=1
+# 翻訳の訳し役(docs/TRANSLATION.md)。sukhi-translate は base の sukhi-translate.container。落ちていても gateway は動く(翻訳だけ失敗する)。
+Environment=LIBRETRANSLATE_URL=http://sukhi-translate:5000
 # gateway は NATS_HOST / NATS_PORT を読む(NATS_URL は bun の sidecar だけが読む)。
 Environment=NATS_HOST=sukhi-nats
 Environment=NATS_PORT=4222
