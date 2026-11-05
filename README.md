@@ -32,7 +32,7 @@ renovate.json            第三者の image(nats など)だけ Renovate
 ```
 requires-sync: 1                  # この形式を読める同期スクリプトの版。古い箱は適用せず通知する
 version: 1.0.0                    # prod はリリースの semver、dev は main の sha-<commit>
-digest.combined: sha256:<64桁>    # {{digest:combined}} に入る。web-next / web-simple / web-board / anubis も同じ
+digest.combined: sha256:<64桁>    # {{digest:combined}} に入る。web-next / anubis も同じ
 ```
 
 - **版を上げる = このファイルを書き換える PR。** sukhi の 5 つの image が同じ版で揃う(タグを 1 回打てば 5 つに付く)。
