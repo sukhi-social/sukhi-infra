@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+[Unit]
+Description=sukhi rustfs (S3)
+
+[Container]
+ContainerName=sukhi-rustfs
+# 第三者の image。Renovate が見る(renovate.json)。ダイジェストは bump で入る。
+Image=docker.io/rustfs/rustfs:1.0.0@sha256:8cc9801755448b71a786705ce76692c77e14936cccd87cf2fc31842e58f4d1ff
+Network=sukhi.network
+# image は uid 10001 で書く。
+UserNS=keep-id:uid=10001,gid=10001
+User=10001:10001
+Volume=sukhi-rustfs.volume:/data:Z
+Environment=RUSTFS_VOLUMES=/data
+Environment=RUSTFS_ADDRESS=:9000
+Environment=RUSTFS_CONSOLE_ENABLE=false
+# gateway と同じ値の組(S3_* と RUSTFS_*)。
+Secret=s3_access_key_id,type=env,target=RUSTFS_ACCESS_KEY
+Secret=s3_secret_access_key,type=env,target=RUSTFS_SECRET_KEY
+Label=app=sukhi
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

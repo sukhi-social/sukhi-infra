@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# media(S3 の実体)。更新で消さない。
+[Volume]
+VolumeName=sukhi-rustfs
+Label=app=sukhi

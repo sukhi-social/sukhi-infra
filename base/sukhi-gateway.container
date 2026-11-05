@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 [Unit]
 Description=sukhi gateway (combined)
-Requires=sukhi-nats.service
-After=sukhi-nats.service
+Requires=sukhi-nats.service sukhi-rustfs.service
+After=sukhi-nats.service sukhi-rustfs.service
 
 [Container]
 ContainerName=sukhi-gateway
@@ -15,7 +15,9 @@ Environment=DATALEVIN_DIR=/var/lib/sukhi/datalevin
 Environment=SUKHI_QUEUE_DB=/var/lib/sukhi/queue.db
 Environment=DELIVERY_QUEUE_DB=/var/lib/sukhi/delivery_queue.db
 Environment=SUKHI_GRAPH=1
-Environment=NATS_URL=nats://sukhi-nats:4222
+# gateway は NATS_HOST / NATS_PORT を読む(NATS_URL は bun の sidecar だけが読む)。
+Environment=NATS_HOST=sukhi-nats
+Environment=NATS_PORT=4222
 # The environment overlay supplies /etc/sukhi/instance.json. Keep it read-only.
 Volume=/etc/sukhi/instance.json:/etc/sukhi/instance.json:ro
 Environment=SUKHI_INSTANCE_CONFIG=/etc/sukhi/instance.json
@@ -24,8 +26,15 @@ Environment=SUKHI_INSTANCE_CONFIG=/etc/sukhi/instance.json
 Environment=DISABLE_ADDONS=nodeinfo_monitor
 # DOMAIN などの環境ごとの値は overlays/<env>/ に置く。
 # 秘密は事前に podman secret で作る(sukhi-setup の docs/PREPARE.md)。
+# 秘密は /run/secrets/<名前> に現れ、entrypoint がファイル名と同じ変数に入れる。
 Secret=erlang_cookie,type=mount,target=ERLANG_COOKIE
 Secret=secret_key_base,type=mount,target=SECRET_KEY_BASE
+Secret=s3_access_key_id,type=mount,target=S3_ACCESS_KEY_ID
+Secret=s3_secret_access_key,type=mount,target=S3_SECRET_ACCESS_KEY
+Secret=smtp_username,type=mount,target=SMTP_USERNAME
+Secret=smtp_password,type=mount,target=SMTP_PASSWORD
+Secret=vapid_private_key,type=mount,target=VAPID_PRIVATE_KEY
+Secret=vapid_subject,type=mount,target=VAPID_SUBJECT
 Label=app=sukhi
 DropCapability=ALL
 NoNewPrivileges=true
