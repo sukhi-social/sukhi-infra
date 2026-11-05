@@ -1,5 +1,0 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
-# Datalevin (datalevin/) と配信キュー(queue.db, delivery_queue.db)。更新で消さない。
-[Volume]
-VolumeName=sukhi-data
-Label=app=sukhi

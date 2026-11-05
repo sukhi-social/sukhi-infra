@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # この環境が期待する sukhi の版(1 行 1 項目)。bump は scripts/bump-version.rb。
 # dev は main の sha-<commit>、prod はリリースの semver。0 埋めのダイジェストは仮で、同期スクリプトは適用しない。
+# sukhi.social は公開前なので、いまはこの dev で回す(箱の /etc/sukhi/env=dev)。公開のときに prod へ切り替え、dev の中身は戻す。
 # {{version}} / {{digest:<name>}} を base の unit が参照する(埋めるのは sukhi-setup の sukhi-render)。
 requires-sync: 1
-version: sha-331192e
-digest.combined:    sha256:e0460af818e667f3c9a046a90aba51698765c226d44fb291e46c1735022cc852
-digest.web-next:    sha256:c010adfe69370102abd614599f3edf4c44a93d6d2d2ed77aee074796cca71fbe
-digest.anubis:     sha256:1e2b684cf4b2df04503b73a87f4e3927babf3d45f5dcc760b654829aae3534e2
+version: sha-a81329d
+digest.combined:    sha256:aa95e5ce6f34e1ffbdc6153b8c24d836eaf5c2b166a223697e06010475bc3684
+digest.web-next:    sha256:403cb9a57aa7d62cac03c653203f1280497df90dd22acbd35e6085f05803b60f
+digest.anubis:     sha256:4b0906bae3f35931f9587b652c63a0b6a893f129742afe94eea3be5eeece45fc
