@@ -7,7 +7,7 @@ After=sukhi-gateway.service
 ContainerName=sukhi-web-next
 Image=ghcr.io/sukhi-social/sukhi-fedi-web-next:{{version}}@{{digest:web-next}}
 Network=sukhi.network
-Volume=sukhi-web-data.volume:/app/data:Z
+# /app/data の mount は overlay が決める(dev は named volume、prod は箱の bind)。
 Environment=GATEWAY_URL=http://sukhi-gateway:4000
 Environment=COOKIE_SECURE=1
 Label=app=sukhi

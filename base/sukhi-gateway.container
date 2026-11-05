@@ -9,7 +9,7 @@ ContainerName=sukhi-gateway
 # image の版とダイジェストは箱の同期スクリプト(sukhi-render)が overlays/<env>/sukhi.version で埋める。
 Image=ghcr.io/sukhi-social/sukhi-fedi-combined:{{version}}@{{digest:combined}}
 Network=sukhi.network
-Volume=sukhi-data.volume:/var/lib/sukhi:Z
+# データ(/var/lib/sukhi)の mount は overlay が決める(dev は named volume、prod は箱の bind)。
 Environment=SUKHI_STORE=datalevin
 Environment=DATALEVIN_DIR=/var/lib/sukhi/datalevin
 Environment=SUKHI_QUEUE_DB=/var/lib/sukhi/queue.db
