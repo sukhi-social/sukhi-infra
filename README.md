@@ -12,6 +12,7 @@ sukhi の**箱が実行するもの**の正本。Podman Quadlet の unit(`*.cont
 ```
 base/                    全環境共通の unit。sukhi の image は {{version}} / {{digest:<name>}} の形
 base/instance.json       非秘密の instance config の既定値
+stow/<env>/instance.json  overlays/<env>/instance.json への symlink。sukhi-setup の prepare-root.sh が /etc/sukhi に stow する
 overlays/<env>/          環境ごとの差分: instance.json、sukhi.version(期待する版)、<unit>.container.d/*.conf
 scripts/check.rb         点検(Ruby。標準ライブラリだけ)(CI と手元で同じ)
 scripts/bump-version.rb  (Ruby)sukhi.version の版とダイジェストを書き換える(手でも CI からも)
