@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "domain": "dev.sukhi.social",
+  "domain": "sukhi.social",
   "frontend": "web-next",
   "upstreams": {
     "web-next": "http://sukhi-web-next:3000"
@@ -12,7 +12,7 @@
     }
   ],
   "site": {
-    "name": "Sukhi Development",
+    "name": "Sukhi",
     "logo": "/.sukhi/logo.svg",
     "icon": "/.sukhi/icon.svg"
   }
