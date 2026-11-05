@@ -7,6 +7,9 @@ After=sukhi-gateway.service
 ContainerName=sukhi-web-next
 Image=ghcr.io/sukhi-social/sukhi-fedi-web-next:{{version}}@{{digest:web-next}}
 Network=sukhi.network
+Volume=sukhi-web-data.volume:/app/data:Z
+Environment=GATEWAY_URL=http://sukhi-gateway:4000
+Environment=COOKIE_SECURE=1
 Label=app=sukhi
 DropCapability=ALL
 NoNewPrivileges=true

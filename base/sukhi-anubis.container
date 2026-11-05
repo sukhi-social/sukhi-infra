@@ -1,14 +1,23 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 [Unit]
 Description=sukhi Anubis
-After=sukhi-gateway.service
+Requires=sukhi-web-next.service
+After=sukhi-web-next.service
 
 [Container]
 ContainerName=sukhi-anubis
 Image=ghcr.io/sukhi-social/sukhi-fedi-anubis:{{version}}@{{digest:anubis}}
 Network=sukhi.network
-# コマンド引数として直接渡す
-Exec=-bind :8080 -target http://sukhi-gateway:4000 -difficulty 4 -serve-robots-txt=true -cookie-partitioned=true
+# 設定は環境変数(箱で動いている形と同じ)。前に立つのは web-next で、gateway ではない。
+Environment=BIND=:8080
+Environment=METRICS_BIND=:9090
+Environment=TARGET=http://sukhi-web-next:3000
+Environment=DIFFICULTY=4
+Environment=SERVE_ROBOTS_TXT=true
+Environment=COOKIE_PARTITIONED=true
+Environment=USE_REMOTE_ADDRESS=true
+Environment=POLICY_FNAME=/data/cfg/botPolicies.yaml
+Environment=IMPRINT_FILE=/data/cfg/imprint.sukhi-social.md
 # 秘密鍵は podman secret から環境変数に注入
 Secret=anubis_ed25519_key,type=env,target=ED25519_PRIVATE_KEY_HEX
 PublishPort=127.0.0.1:8181:8080
