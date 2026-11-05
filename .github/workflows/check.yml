@@ -2,6 +2,7 @@
 name: check
 on:
   pull_request:
+  workflow_dispatch:   # bump-dev-auto が、自動で作った branch に起こす
   push:
     branches: [main]
 permissions:
