@@ -24,6 +24,8 @@ Environment=NATS_PORT=4222
 # 同期が quadlet dir に写す instance.json(通常ファイル)を mount する。/etc の symlink を mount すると、:z は link にしか効かず読めない(SELinux)。
 Volume=%h/.config/containers/systemd/instance.json:/etc/sukhi/instance.json:ro,z
 Environment=SUKHI_INSTANCE_CONFIG=/etc/sukhi/instance.json
+# 規約・プライバシー(instance.json の legal.dir)。同期が quadlet dir に写す。文書は起動時に一度だけ読む。
+Volume=%h/.config/containers/systemd/legal:/etc/sukhi/legal:ro,z
 # `/` は既定だと nodeinfo_monitor アドオン(NodeInfo viewer)が答え、web-next に渡らない。
 # SNS として使うので切る(viewer とウォッチャー bot の登録は 404 になる)。
 Environment=DISABLE_ADDONS=nodeinfo_monitor
