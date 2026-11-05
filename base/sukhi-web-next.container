@@ -13,8 +13,8 @@ Environment=COOKIE_SECURE=1
 Label=app=sukhi
 DropCapability=ALL
 NoNewPrivileges=true
-# node:24-alpine。curl は無いので busybox wget。/.sukhi/web.json は静的で、gateway も読む。
-HealthCmd=wget -q -O /dev/null http://127.0.0.1:3000/.sukhi/web.json
+# node:24-alpine。curl は無いので busybox wget。web-next には /.sukhi/web.json も /up も無く 404 になる。/login が 200(箱の現行と同じ口)。
+HealthCmd=wget -q -O /dev/null http://127.0.0.1:3000/login
 HealthInterval=15s
 HealthTimeout=3s
 HealthRetries=3
