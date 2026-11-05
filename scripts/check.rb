@@ -132,7 +132,7 @@ end
 
 gateway = "base/sukhi-gateway.container"
 gateway_lines = lines(gateway)
-err("#{gateway}: instance.json の read-only mount がない") unless gateway_lines.include?("Volume=/etc/sukhi/instance.json:/etc/sukhi/instance.json:ro")
+err("#{gateway}: instance.json の read-only mount がない") unless gateway_lines.any? { |l| l.match?(%r{\AVolume=%h/\.config/containers/systemd/instance\.json:/etc/sukhi/instance\.json:ro,z\z}) }
 err("#{gateway}: SUKHI_INSTANCE_CONFIG がない") unless gateway_lines.include?("Environment=SUKHI_INSTANCE_CONFIG=/etc/sukhi/instance.json")
 gateway_lines.grep(/\AVolume=/).each do |line|
   source, target, mode = line.delete_prefix("Volume=").split(":", 3)

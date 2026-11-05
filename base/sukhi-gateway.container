@@ -19,7 +19,8 @@ Environment=SUKHI_GRAPH=1
 Environment=NATS_HOST=sukhi-nats
 Environment=NATS_PORT=4222
 # The environment overlay supplies /etc/sukhi/instance.json. Keep it read-only.
-Volume=/etc/sukhi/instance.json:/etc/sukhi/instance.json:ro
+# 同期が quadlet dir に写す instance.json(通常ファイル)を mount する。/etc の symlink を mount すると、:z は link にしか効かず読めない(SELinux)。
+Volume=%h/.config/containers/systemd/instance.json:/etc/sukhi/instance.json:ro,z
 Environment=SUKHI_INSTANCE_CONFIG=/etc/sukhi/instance.json
 # `/` は既定だと nodeinfo_monitor アドオン(NodeInfo viewer)が答え、web-next に渡らない。
 # SNS として使うので切る(viewer とウォッチャー bot の登録は 404 になる)。
