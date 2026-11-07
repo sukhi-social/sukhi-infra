@@ -21,6 +21,8 @@ HealthRetries=3
 HealthStartPeriod=20s
 HealthOnFailure=kill
 Notify=healthy
+# node が PID 1 だと SIGTERM を受けず、10 秒待って SIGKILL(137)になる。init を挟んで素直に止める。
+PodmanArgs=--init
 
 [Service]
 Restart=on-failure
